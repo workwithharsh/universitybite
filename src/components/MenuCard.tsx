@@ -4,8 +4,10 @@ import type { Menu, Order } from '@/types/database';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Package, Minus, Plus, Loader2 } from 'lucide-react';
+import { Clock, Package, Minus, Plus, Loader2, IndianRupee } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+const formatPrice = (price: number) => `₹${price.toFixed(2)}`;
 
 interface MenuCardProps {
   menu: Menu;
@@ -59,6 +61,7 @@ export function MenuCard({
             {menu.description && (
               <CardDescription>{menu.description}</CardDescription>
             )}
+            <p className="text-lg font-bold text-primary">{formatPrice(menu.price)}</p>
           </div>
           <Badge 
             variant="outline" 

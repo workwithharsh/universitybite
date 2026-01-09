@@ -44,6 +44,7 @@ export default function AdminMenuForm() {
   const [orderDeadline, setOrderDeadline] = useState<Date>(new Date());
   const [deadlineTime, setDeadlineTime] = useState('12:00');
   const [totalQuantity, setTotalQuantity] = useState(50);
+  const [price, setPrice] = useState(0);
   const [status, setStatus] = useState<MenuStatus>('open');
   const [isUploading, setIsUploading] = useState(false);
   const [imageTab, setImageTab] = useState<'upload' | 'url'>('upload');
@@ -59,6 +60,7 @@ export default function AdminMenuForm() {
       setOrderDeadline(new Date(existingMenu.order_deadline));
       setDeadlineTime(format(new Date(existingMenu.order_deadline), 'HH:mm'));
       setTotalQuantity(existingMenu.total_quantity);
+      setPrice(existingMenu.price || 0);
       setStatus(existingMenu.status);
       if (existingMenu.image_url) {
         setImageTab('url');
@@ -139,6 +141,7 @@ export default function AdminMenuForm() {
       order_deadline: fullDeadline.toISOString(),
       total_quantity: totalQuantity,
       remaining_quantity: isEditing ? existingMenu?.remaining_quantity || totalQuantity : totalQuantity,
+      price,
       status,
       created_by: user?.id || null,
     };
@@ -350,7 +353,7 @@ export default function AdminMenuForm() {
                 </div>
               </div>
 
-              {/* Quantity & Status */}
+              {/* Quantity & Price */}
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="quantity">Total Quantity *</Label>
@@ -365,17 +368,31 @@ export default function AdminMenuForm() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Status *</Label>
-                  <Select value={status} onValueChange={(v) => setStatus(v as MenuStatus)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="open">Open</SelectItem>
-                      <SelectItem value="closed">Closed</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label htmlFor="price">Price (₹) *</Label>
+                  <Input
+                    id="price"
+                    type="number"
+                    min={0}
+                    step={0.01}
+                    value={price}
+                    onChange={(e) => setPrice(parseFloat(e.target.value) || 0)}
+                    required
+                  />
                 </div>
+              </div>
+
+              {/* Status */}
+              <div className="space-y-2">
+                <Label>Status *</Label>
+                <Select value={status} onValueChange={(v) => setStatus(v as MenuStatus)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="open">Open</SelectItem>
+                    <SelectItem value="closed">Closed</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Actions */}

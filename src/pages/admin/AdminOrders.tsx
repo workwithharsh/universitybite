@@ -17,8 +17,10 @@ import {
 import { useAllOrders, useUpdateOrderStatus } from '@/hooks/useOrders';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
-import { History, CheckCircle, XCircle, User, Loader2 } from 'lucide-react';
+import { History, CheckCircle, XCircle, User, Loader2, Receipt } from 'lucide-react';
 import type { OrderStatus } from '@/types/database';
+
+const formatPrice = (price: number) => `₹${price.toFixed(2)}`;
 
 export default function AdminOrders() {
   const queryClient = useQueryClient();
@@ -95,6 +97,60 @@ export default function AdminOrders() {
           </TabsList>
         </Tabs>
 
+        {/* Bill Summary */}
+        {orders && orders.length > 0 && (
+          <Card className="bg-primary/5 border-primary/20">
+            <CardHeader className="pb-2">
+              <div className="flex items-center gap-2">
+                <Receipt className="h-5 w-5 text-primary" />
+                <CardTitle>Revenue Summary</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 sm:grid-cols-4">
+                <div>
+                  <p className="text-sm text-muted-foreground">Total Revenue</p>
+                  <p className="text-2xl font-bold">
+                    {formatPrice(
+                      orders.reduce((sum, o) => sum + o.quantity * (o.menus.price || 0), 0)
+                    )}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Approved</p>
+                  <p className="text-2xl font-bold text-green-600">
+                    {formatPrice(
+                      orders
+                        .filter((o) => o.status === 'approved')
+                        .reduce((sum, o) => sum + o.quantity * (o.menus.price || 0), 0)
+                    )}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Pending</p>
+                  <p className="text-2xl font-bold text-amber-600">
+                    {formatPrice(
+                      orders
+                        .filter((o) => o.status === 'pending')
+                        .reduce((sum, o) => sum + o.quantity * (o.menus.price || 0), 0)
+                    )}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Rejected</p>
+                  <p className="text-2xl font-bold text-red-600">
+                    {formatPrice(
+                      orders
+                        .filter((o) => o.status === 'rejected')
+                        .reduce((sum, o) => sum + o.quantity * (o.menus.price || 0), 0)
+                    )}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Orders Table */}
         <Card>
           <CardHeader>
@@ -123,8 +179,9 @@ export default function AdminOrders() {
                       <TableHead>Date</TableHead>
                       <TableHead>Meal</TableHead>
                       <TableHead className="text-center">Qty</TableHead>
+                      <TableHead className="text-right">Price</TableHead>
+                      <TableHead className="text-right">Total</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead>Ordered</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -156,11 +213,14 @@ export default function AdminOrders() {
                         <TableCell className="text-center font-medium">
                           {order.quantity}
                         </TableCell>
+                        <TableCell className="text-right">
+                          {formatPrice(order.menus.price || 0)}
+                        </TableCell>
+                        <TableCell className="text-right font-medium">
+                          {formatPrice(order.quantity * (order.menus.price || 0))}
+                        </TableCell>
                         <TableCell>
                           <StatusBadge status={order.status} />
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {format(parseISO(order.created_at), 'MMM d, h:mm a')}
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center justify-end gap-1">
