@@ -30,6 +30,7 @@ export interface Menu {
   total_quantity: number;
   remaining_quantity: number;
   status: MenuStatus;
+  price: number;
   created_by: string | null;
   created_at: string;
   updated_at: string;

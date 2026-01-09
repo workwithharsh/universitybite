@@ -24,6 +24,7 @@ export type Database = {
           meal_type: Database["public"]["Enums"]["meal_type"]
           menu_date: string
           order_deadline: string
+          price: number
           remaining_quantity: number
           status: Database["public"]["Enums"]["menu_status"]
           title: string
@@ -39,6 +40,7 @@ export type Database = {
           meal_type: Database["public"]["Enums"]["meal_type"]
           menu_date: string
           order_deadline: string
+          price?: number
           remaining_quantity: number
           status?: Database["public"]["Enums"]["menu_status"]
           title: string
@@ -54,6 +56,7 @@ export type Database = {
           meal_type?: Database["public"]["Enums"]["meal_type"]
           menu_date?: string
           order_deadline?: string
+          price?: number
           remaining_quantity?: number
           status?: Database["public"]["Enums"]["menu_status"]
           title?: string
