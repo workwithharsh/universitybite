@@ -24,10 +24,8 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useMyOrders, useCancelOrder } from '@/hooks/useOrders';
-import { History, Trash2, ShoppingBag, Receipt } from 'lucide-react';
+import { History, Trash2, ShoppingBag } from 'lucide-react';
 import type { OrderWithMenu } from '@/types/database';
-
-const formatPrice = (price: number) => `₹${price.toFixed(2)}`;
 
 export default function StudentOrders() {
   const { data: orders, isLoading } = useMyOrders();
@@ -51,46 +49,6 @@ export default function StudentOrders() {
             View and manage your food order history
           </p>
         </div>
-
-        {/* Bill Summary */}
-        {orders && orders.length > 0 && (
-          <Card className="bg-primary/5 border-primary/20">
-            <CardHeader className="pb-2">
-              <div className="flex items-center gap-2">
-                <Receipt className="h-5 w-5 text-primary" />
-                <CardTitle>Bill Summary</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-2 sm:grid-cols-3">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Orders</p>
-                  <p className="text-2xl font-bold">{orders.length}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Approved Amount</p>
-                  <p className="text-2xl font-bold text-green-600">
-                    {formatPrice(
-                      orders
-                        .filter((o) => o.status === 'approved')
-                        .reduce((sum, o) => sum + o.quantity * (o.menus.price || 0), 0)
-                    )}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Pending Amount</p>
-                  <p className="text-2xl font-bold text-amber-600">
-                    {formatPrice(
-                      orders
-                        .filter((o) => o.status === 'pending')
-                        .reduce((sum, o) => sum + o.quantity * (o.menus.price || 0), 0)
-                    )}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
         {/* Orders Table */}
         <Card>
@@ -119,9 +77,8 @@ export default function StudentOrders() {
                       <TableHead>Date</TableHead>
                       <TableHead>Meal</TableHead>
                       <TableHead className="text-center">Qty</TableHead>
-                      <TableHead className="text-right">Price</TableHead>
-                      <TableHead className="text-right">Total</TableHead>
                       <TableHead>Status</TableHead>
+                      <TableHead>Ordered</TableHead>
                       <TableHead></TableHead>
                     </TableRow>
                   </TableHeader>
@@ -153,14 +110,11 @@ export default function StudentOrders() {
                         <TableCell className="text-center">
                           {order.quantity}
                         </TableCell>
-                        <TableCell className="text-right">
-                          {formatPrice(order.menus.price || 0)}
-                        </TableCell>
-                        <TableCell className="text-right font-medium">
-                          {formatPrice(order.quantity * (order.menus.price || 0))}
-                        </TableCell>
                         <TableCell>
                           <StatusBadge status={order.status} />
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {format(parseISO(order.created_at), 'MMM d, h:mm a')}
                         </TableCell>
                         <TableCell>
                           {order.status === 'pending' && (
