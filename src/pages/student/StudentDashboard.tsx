@@ -93,9 +93,10 @@ export default function StudentDashboard() {
             onValueChange={(v) => setSelectedMeal(v as MealType)}
             className="w-full sm:w-auto"
           >
-            <TabsList className="grid grid-cols-3 w-full sm:w-auto">
+            <TabsList className="grid grid-cols-4 w-full sm:w-auto">
               <TabsTrigger value="breakfast">Breakfast</TabsTrigger>
               <TabsTrigger value="lunch">Lunch</TabsTrigger>
+              <TabsTrigger value="evening_snack">Snack</TabsTrigger>
               <TabsTrigger value="dinner">Dinner</TabsTrigger>
             </TabsList>
           </Tabs>

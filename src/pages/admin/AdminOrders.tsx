@@ -123,6 +123,8 @@ export default function AdminOrders() {
                       <TableHead>Date</TableHead>
                       <TableHead>Meal</TableHead>
                       <TableHead className="text-center">Qty</TableHead>
+                      <TableHead className="text-right">Price</TableHead>
+                      <TableHead className="text-right">Total</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Ordered</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
@@ -147,11 +149,17 @@ export default function AdminOrders() {
                         <TableCell className="font-medium">
                           {order.menus.title}
                         </TableCell>
+                        <TableCell className="text-right">
+                          ${(order.menus.price || 0).toFixed(2)}
+                        </TableCell>
+                        <TableCell className="text-right font-medium text-primary">
+                          ${((order.menus.price || 0) * order.quantity).toFixed(2)}
+                        </TableCell>
                         <TableCell>
                           {format(parseISO(order.menus.menu_date), 'MMM d, yyyy')}
                         </TableCell>
                         <TableCell className="capitalize">
-                          {order.menus.meal_type}
+                          {order.menus.meal_type.replace('_', ' ')}
                         </TableCell>
                         <TableCell className="text-center font-medium">
                           {order.quantity}
