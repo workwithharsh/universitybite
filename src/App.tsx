@@ -9,6 +9,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import StudentDashboard from "./pages/student/StudentDashboard";
 import StudentOrders from "./pages/student/StudentOrders";
+import StudentBills from "./pages/student/StudentBills";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminMenus from "./pages/admin/AdminMenus";
 import AdminMenuForm from "./pages/admin/AdminMenuForm";
@@ -58,6 +59,11 @@ const App = () => (
             <Route path="/student/orders" element={
               <ProtectedRoute allowedRoles={['student']}>
                 <StudentOrders />
+              </ProtectedRoute>
+            } />
+            <Route path="/student/bills" element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <StudentBills />
               </ProtectedRoute>
             } />
             

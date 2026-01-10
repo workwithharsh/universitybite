@@ -4,7 +4,7 @@ import type { Menu, Order } from '@/types/database';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Package, Minus, Plus, Loader2 } from 'lucide-react';
+import { Clock, Package, Minus, Plus, Loader2, DollarSign } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface MenuCardProps {
@@ -28,10 +28,15 @@ export function MenuCard({
   const isAvailable = menu.status === 'open' && !deadlinePassed && menu.remaining_quantity > 0;
   const canOrder = isAvailable && !existingOrder;
 
-  const mealTypeColors = {
+  const mealTypeColors: Record<string, string> = {
     breakfast: 'bg-amber-100 text-amber-800 border-amber-200',
     lunch: 'bg-blue-100 text-blue-800 border-blue-200',
+    evening_snack: 'bg-orange-100 text-orange-800 border-orange-200',
     dinner: 'bg-purple-100 text-purple-800 border-purple-200',
+  };
+
+  const formatMealType = (type: string) => {
+    return type.replace('_', ' ');
   };
 
   const handleQuantityChange = (delta: number) => {
@@ -60,12 +65,17 @@ export function MenuCard({
               <CardDescription>{menu.description}</CardDescription>
             )}
           </div>
-          <Badge 
-            variant="outline" 
-            className={cn('capitalize shrink-0', mealTypeColors[menu.meal_type])}
-          >
-            {menu.meal_type}
-          </Badge>
+          <div className="flex flex-col items-end gap-1">
+            <Badge 
+              variant="outline" 
+              className={cn('capitalize shrink-0', mealTypeColors[menu.meal_type])}
+            >
+              {formatMealType(menu.meal_type)}
+            </Badge>
+            <span className="text-lg font-bold text-primary">
+              ${menu.price.toFixed(2)}
+            </span>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-3">

@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      bills: {
+        Row: {
+          bill_date: string
+          created_at: string
+          id: string
+          menu_id: string
+          order_id: string
+          quantity: number
+          total_amount: number
+          unit_price: number
+          user_id: string
+        }
+        Insert: {
+          bill_date?: string
+          created_at?: string
+          id?: string
+          menu_id: string
+          order_id: string
+          quantity: number
+          total_amount: number
+          unit_price: number
+          user_id: string
+        }
+        Update: {
+          bill_date?: string
+          created_at?: string
+          id?: string
+          menu_id?: string
+          order_id?: string
+          quantity?: number
+          total_amount?: number
+          unit_price?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bills_menu_id_fkey"
+            columns: ["menu_id"]
+            isOneToOne: false
+            referencedRelation: "menus"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bills_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       menus: {
         Row: {
           created_at: string
@@ -24,6 +75,7 @@ export type Database = {
           meal_type: Database["public"]["Enums"]["meal_type"]
           menu_date: string
           order_deadline: string
+          price: number
           remaining_quantity: number
           status: Database["public"]["Enums"]["menu_status"]
           title: string
@@ -39,6 +91,7 @@ export type Database = {
           meal_type: Database["public"]["Enums"]["meal_type"]
           menu_date: string
           order_deadline: string
+          price?: number
           remaining_quantity: number
           status?: Database["public"]["Enums"]["menu_status"]
           title: string
@@ -54,6 +107,7 @@ export type Database = {
           meal_type?: Database["public"]["Enums"]["meal_type"]
           menu_date?: string
           order_deadline?: string
+          price?: number
           remaining_quantity?: number
           status?: Database["public"]["Enums"]["menu_status"]
           title?: string
@@ -161,7 +215,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "student"
-      meal_type: "breakfast" | "lunch" | "dinner"
+      meal_type: "breakfast" | "lunch" | "dinner" | "evening_snack"
       menu_status: "open" | "closed"
       order_status: "pending" | "approved" | "rejected"
     }
@@ -292,7 +346,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "student"],
-      meal_type: ["breakfast", "lunch", "dinner"],
+      meal_type: ["breakfast", "lunch", "dinner", "evening_snack"],
       menu_status: ["open", "closed"],
       order_status: ["pending", "approved", "rejected"],
     },

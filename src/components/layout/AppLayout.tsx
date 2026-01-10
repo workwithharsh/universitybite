@@ -6,6 +6,7 @@ import {
   UtensilsCrossed, 
   LayoutDashboard, 
   ClipboardList, 
+  Receipt,
   History, 
   LogOut,
   Menu as MenuIcon,
@@ -34,6 +35,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const studentLinks = [
     { href: '/student', label: 'Menu', icon: LayoutDashboard },
     { href: '/student/orders', label: 'My Orders', icon: History },
+    { href: '/student/bills', label: 'My Bills', icon: Receipt },
   ];
 
   const adminLinks = [
