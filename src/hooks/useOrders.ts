@@ -132,10 +132,25 @@ export function useUpdateOrderStatus() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async ({ orderId, status }: { orderId: string; status: OrderStatus }) => {
+    mutationFn: async ({ 
+      orderId, 
+      status, 
+      approvedQuantity 
+    }: { 
+      orderId: string; 
+      status: OrderStatus;
+      approvedQuantity?: number;
+    }) => {
+      const updateData: { status: OrderStatus; quantity?: number } = { status };
+      
+      // If approving with a specific quantity, update the quantity too
+      if (status === 'approved' && approvedQuantity !== undefined) {
+        updateData.quantity = approvedQuantity;
+      }
+
       const { data, error } = await supabase
         .from('orders')
-        .update({ status })
+        .update(updateData)
         .eq('id', orderId)
         .select()
         .single();
@@ -146,9 +161,14 @@ export function useUpdateOrderStatus() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['all-orders'] });
       queryClient.invalidateQueries({ queryKey: ['menus'] });
+      queryClient.invalidateQueries({ queryKey: ['my-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['my-bills'] });
+      const message = variables.status === 'approved' && variables.approvedQuantity
+        ? `Order approved for ${variables.approvedQuantity} item(s).`
+        : `The order has been ${variables.status}.`;
       toast({
         title: `Order ${variables.status}`,
-        description: `The order has been ${variables.status}.`,
+        description: message,
       });
     },
     onError: (error: Error) => {

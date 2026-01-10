@@ -4,6 +4,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { StatusBadge } from '@/components/StatusBadge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
@@ -14,11 +15,20 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 import { useAllOrders, useUpdateOrderStatus } from '@/hooks/useOrders';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { History, CheckCircle, XCircle, User, Loader2 } from 'lucide-react';
-import type { OrderStatus } from '@/types/database';
+import type { OrderStatus, OrderWithProfile } from '@/types/database';
 
 export default function AdminOrders() {
   const queryClient = useQueryClient();
@@ -26,6 +36,11 @@ export default function AdminOrders() {
   const updateOrderStatus = useUpdateOrderStatus();
   const [statusFilter, setStatusFilter] = useState<OrderStatus | 'all'>('all');
   const [processingId, setProcessingId] = useState<string | null>(null);
+  
+  // Approval dialog state
+  const [approvalDialogOpen, setApprovalDialogOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<OrderWithProfile | null>(null);
+  const [approveQuantity, setApproveQuantity] = useState(1);
 
   // Real-time subscription for order updates
   useEffect(() => {
@@ -50,10 +65,33 @@ export default function AdminOrders() {
     return order.status === statusFilter;
   });
 
-  const handleStatusUpdate = async (orderId: string, status: OrderStatus) => {
+  const openApprovalDialog = (order: OrderWithProfile) => {
+    setSelectedOrder(order);
+    setApproveQuantity(order.quantity);
+    setApprovalDialogOpen(true);
+  };
+
+  const handleApprove = async () => {
+    if (!selectedOrder) return;
+    
+    setProcessingId(selectedOrder.id);
+    try {
+      await updateOrderStatus.mutateAsync({ 
+        orderId: selectedOrder.id, 
+        status: 'approved',
+        approvedQuantity: approveQuantity
+      });
+      setApprovalDialogOpen(false);
+      setSelectedOrder(null);
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  const handleReject = async (orderId: string) => {
     setProcessingId(orderId);
     try {
-      await updateOrderStatus.mutateAsync({ orderId, status });
+      await updateOrderStatus.mutateAsync({ orderId, status: 'rejected' });
     } finally {
       setProcessingId(null);
     }
@@ -65,6 +103,8 @@ export default function AdminOrders() {
     approved: orders?.filter((o) => o.status === 'approved').length || 0,
     rejected: orders?.filter((o) => o.status === 'rejected').length || 0,
   };
+
+  const formatMealType = (type: string) => type.replace('_', ' ');
 
   return (
     <AppLayout>
@@ -149,20 +189,20 @@ export default function AdminOrders() {
                         <TableCell className="font-medium">
                           {order.menus.title}
                         </TableCell>
+                        <TableCell>
+                          {format(parseISO(order.menus.menu_date), 'MMM d, yyyy')}
+                        </TableCell>
+                        <TableCell className="capitalize">
+                          {formatMealType(order.menus.meal_type)}
+                        </TableCell>
+                        <TableCell className="text-center font-medium">
+                          {order.quantity}
+                        </TableCell>
                         <TableCell className="text-right">
                           ${(order.menus.price || 0).toFixed(2)}
                         </TableCell>
                         <TableCell className="text-right font-medium text-primary">
                           ${((order.menus.price || 0) * order.quantity).toFixed(2)}
-                        </TableCell>
-                        <TableCell>
-                          {format(parseISO(order.menus.menu_date), 'MMM d, yyyy')}
-                        </TableCell>
-                        <TableCell className="capitalize">
-                          {order.menus.meal_type.replace('_', ' ')}
-                        </TableCell>
-                        <TableCell className="text-center font-medium">
-                          {order.quantity}
                         </TableCell>
                         <TableCell>
                           <StatusBadge status={order.status} />
@@ -178,8 +218,9 @@ export default function AdminOrders() {
                                   variant="ghost"
                                   size="icon"
                                   className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                                  onClick={() => handleStatusUpdate(order.id, 'approved')}
+                                  onClick={() => openApprovalDialog(order)}
                                   disabled={processingId === order.id}
+                                  title="Approve order"
                                 >
                                   {processingId === order.id ? (
                                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -191,8 +232,9 @@ export default function AdminOrders() {
                                   variant="ghost"
                                   size="icon"
                                   className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                  onClick={() => handleStatusUpdate(order.id, 'rejected')}
+                                  onClick={() => handleReject(order.id)}
                                   disabled={processingId === order.id}
+                                  title="Reject order"
                                 >
                                   <XCircle className="h-4 w-4" />
                                 </Button>
@@ -221,6 +263,91 @@ export default function AdminOrders() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Approval Dialog */}
+      <Dialog open={approvalDialogOpen} onOpenChange={setApprovalDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Approve Order</DialogTitle>
+            <DialogDescription>
+              Specify how many items to approve for this order.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedOrder && (
+            <div className="space-y-4 py-4">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-muted-foreground">Student:</span>
+                  <p className="font-medium">{selectedOrder.profiles?.name || 'Unknown'}</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Menu:</span>
+                  <p className="font-medium">{selectedOrder.menus.title}</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Requested:</span>
+                  <p className="font-medium">{selectedOrder.quantity} item(s)</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Unit Price:</span>
+                  <p className="font-medium">${(selectedOrder.menus.price || 0).toFixed(2)}</p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="approveQty">Approve Quantity</Label>
+                <Input
+                  id="approveQty"
+                  type="number"
+                  min={1}
+                  max={selectedOrder.quantity}
+                  value={approveQuantity}
+                  onChange={(e) => setApproveQuantity(
+                    Math.min(selectedOrder.quantity, Math.max(1, parseInt(e.target.value) || 1))
+                  )}
+                />
+                <p className="text-xs text-muted-foreground">
+                  You can approve up to {selectedOrder.quantity} item(s)
+                </p>
+              </div>
+
+              <div className="p-3 rounded-md bg-primary/10 border border-primary/20">
+                <p className="text-sm font-medium">Bill Amount</p>
+                <p className="text-2xl font-bold text-primary">
+                  ${((selectedOrder.menus.price || 0) * approveQuantity).toFixed(2)}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {approveQuantity} × ${(selectedOrder.menus.price || 0).toFixed(2)}
+                </p>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setApprovalDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleApprove}
+              disabled={processingId !== null}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {processingId ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Approving...
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="mr-2 h-4 w-4" />
+                  Approve {approveQuantity} Item(s)
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AppLayout>
   );
 }
