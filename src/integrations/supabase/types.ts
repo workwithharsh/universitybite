@@ -217,7 +217,11 @@ export type Database = {
       app_role: "admin" | "student"
       meal_type: "breakfast" | "lunch" | "dinner" | "evening_snack"
       menu_status: "open" | "closed"
-      order_status: "pending" | "approved" | "rejected"
+      order_status:
+        | "pending"
+        | "approved"
+        | "rejected"
+        | "cancellation_requested"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -348,7 +352,12 @@ export const Constants = {
       app_role: ["admin", "student"],
       meal_type: ["breakfast", "lunch", "dinner", "evening_snack"],
       menu_status: ["open", "closed"],
-      order_status: ["pending", "approved", "rejected"],
+      order_status: [
+        "pending",
+        "approved",
+        "rejected",
+        "cancellation_requested",
+      ],
     },
   },
 } as const
