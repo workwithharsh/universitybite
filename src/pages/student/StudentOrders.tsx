@@ -75,71 +75,129 @@ export default function StudentOrders() {
                 ))}
               </div>
             ) : orders && orders.length > 0 ? (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Menu Item</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Meal</TableHead>
-                      <TableHead className="text-center">Qty</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Ordered</TableHead>
-                      <TableHead></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {orders.map((order) => (
-                      <TableRow key={order.id}>
-                        <TableCell className="font-medium">
-                          <div className="flex items-center gap-3">
-                            {order.menus.image_url ? (
-                              <img
-                                src={order.menus.image_url}
-                                alt={order.menus.title}
-                                className="w-10 h-10 rounded object-cover"
-                              />
-                            ) : (
-                              <div className="w-10 h-10 rounded bg-muted flex items-center justify-center">
-                                <ShoppingBag className="h-4 w-4 text-muted-foreground" />
-                              </div>
-                            )}
-                            {order.menus.title}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {format(parseISO(order.menus.menu_date), 'MMM d, yyyy')}
-                        </TableCell>
-                        <TableCell className="capitalize">
-                          {order.menus.meal_type}
-                        </TableCell>
-                        <TableCell className="text-center">
-                          {order.quantity}
-                        </TableCell>
-                        <TableCell>
-                          <StatusBadge status={order.status} />
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {format(parseISO(order.created_at), 'MMM d, h:mm a')}
-                        </TableCell>
-                        <TableCell>
-                          {canRequestCancellation(order) && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="text-destructive hover:text-destructive"
-                              onClick={() => setOrderToCancel(order)}
-                              title="Request cancellation"
-                            >
-                              <XCircle className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </TableCell>
+              <>
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Menu Item</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Meal</TableHead>
+                        <TableHead className="text-center">Qty</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Ordered</TableHead>
+                        <TableHead></TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
+                    </TableHeader>
+                    <TableBody>
+                      {orders.map((order) => (
+                        <TableRow key={order.id}>
+                          <TableCell className="font-medium">
+                            <div className="flex items-center gap-3">
+                              {order.menus.image_url ? (
+                                <img
+                                  src={order.menus.image_url}
+                                  alt={order.menus.title}
+                                  className="w-10 h-10 rounded object-cover"
+                                />
+                              ) : (
+                                <div className="w-10 h-10 rounded bg-muted flex items-center justify-center">
+                                  <ShoppingBag className="h-4 w-4 text-muted-foreground" />
+                                </div>
+                              )}
+                              {order.menus.title}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            {format(parseISO(order.menus.menu_date), 'MMM d, yyyy')}
+                          </TableCell>
+                          <TableCell className="capitalize">
+                            {order.menus.meal_type.replace('_', ' ')}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            {order.quantity}
+                          </TableCell>
+                          <TableCell>
+                            <StatusBadge status={order.status} />
+                          </TableCell>
+                          <TableCell className="text-muted-foreground">
+                            {format(parseISO(order.created_at), 'MMM d, h:mm a')}
+                          </TableCell>
+                          <TableCell>
+                            {canRequestCancellation(order) && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-destructive hover:text-destructive"
+                                onClick={() => setOrderToCancel(order)}
+                                title="Request cancellation"
+                              >
+                                <XCircle className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Mobile Card View */}
+                <div className="md:hidden space-y-3">
+                  {orders.map((order) => (
+                    <div key={order.id} className="border rounded-lg p-4 space-y-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          {order.menus.image_url ? (
+                            <img
+                              src={order.menus.image_url}
+                              alt={order.menus.title}
+                              className="w-12 h-12 rounded object-cover"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 rounded bg-muted flex items-center justify-center">
+                              <ShoppingBag className="h-5 w-5 text-muted-foreground" />
+                            </div>
+                          )}
+                          <div>
+                            <p className="font-medium">{order.menus.title}</p>
+                            <p className="text-sm text-muted-foreground capitalize">
+                              {order.menus.meal_type.replace('_', ' ')}
+                            </p>
+                          </div>
+                        </div>
+                        <StatusBadge status={order.status} />
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">Date:</span>
+                          <p>{format(parseISO(order.menus.menu_date), 'MMM d, yyyy')}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Quantity:</span>
+                          <p>{order.quantity}</p>
+                        </div>
+                        <div className="col-span-2">
+                          <span className="text-muted-foreground">Ordered:</span>
+                          <p>{format(parseISO(order.created_at), 'MMM d, h:mm a')}</p>
+                        </div>
+                      </div>
+                      {canRequestCancellation(order) && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full text-destructive border-destructive hover:bg-destructive/10"
+                          onClick={() => setOrderToCancel(order)}
+                        >
+                          <XCircle className="h-4 w-4 mr-2" />
+                          Request Cancellation
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </>
             ) : (
               <div className="py-12 text-center">
                 <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">

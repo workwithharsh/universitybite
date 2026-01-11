@@ -178,127 +178,226 @@ export default function AdminOrders() {
                 ))}
               </div>
             ) : filteredOrders && filteredOrders.length > 0 ? (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Student</TableHead>
-                      <TableHead>Menu Item</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Meal</TableHead>
-                      <TableHead className="text-center">Qty</TableHead>
-                      <TableHead className="text-right">Price</TableHead>
-                      <TableHead className="text-right">Total</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Ordered</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredOrders.map((order) => (
-                      <TableRow key={order.id}>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-                              <User className="h-4 w-4 text-muted-foreground" />
-                            </div>
-                            <div>
-                              <p className="font-medium">{order.profiles?.name || 'Unknown'}</p>
-                              <p className="text-xs text-muted-foreground">
-                                {order.profiles?.email || 'No email'}
-                              </p>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="font-medium">
-                          {order.menus.title}
-                        </TableCell>
-                        <TableCell>
-                          {format(parseISO(order.menus.menu_date), 'MMM d, yyyy')}
-                        </TableCell>
-                        <TableCell className="capitalize">
-                          {formatMealType(order.menus.meal_type)}
-                        </TableCell>
-                        <TableCell className="text-center font-medium">
-                          {order.quantity}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          ₹{(order.menus.price || 0).toFixed(2)}
-                        </TableCell>
-                        <TableCell className="text-right font-medium text-primary">
-                          ₹{((order.menus.price || 0) * order.quantity).toFixed(2)}
-                        </TableCell>
-                        <TableCell>
-                          <StatusBadge status={order.status} />
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {format(parseISO(order.created_at), 'MMM d, h:mm a')}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center justify-end gap-1">
-                            {order.status === 'pending' && (
-                              <>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                                  onClick={() => openApprovalDialog(order)}
-                                  disabled={processingId === order.id}
-                                  title="Approve order"
-                                >
-                                  {processingId === order.id ? (
-                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                  ) : (
-                                    <CheckCircle className="h-4 w-4" />
-                                  )}
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                  onClick={() => handleReject(order.id)}
-                                  disabled={processingId === order.id}
-                                  title="Reject order"
-                                >
-                                  <XCircle className="h-4 w-4" />
-                                </Button>
-                              </>
-                            )}
-                            {order.status === 'cancellation_requested' && (
-                              <>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                                  onClick={() => handleApproveCancellation(order.id)}
-                                  disabled={processingId === order.id}
-                                  title="Approve cancellation"
-                                >
-                                  {processingId === order.id ? (
-                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                  ) : (
-                                    <Ban className="h-4 w-4" />
-                                  )}
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                  onClick={() => handleRejectCancellation(order.id)}
-                                  disabled={processingId === order.id}
-                                  title="Reject cancellation"
-                                >
-                                  <XCircle className="h-4 w-4" />
-                                </Button>
-                              </>
-                            )}
-                          </div>
-                        </TableCell>
+              <>
+                {/* Desktop Table View */}
+                <div className="hidden lg:block overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Student</TableHead>
+                        <TableHead>Menu Item</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Meal</TableHead>
+                        <TableHead className="text-center">Qty</TableHead>
+                        <TableHead className="text-right">Price</TableHead>
+                        <TableHead className="text-right">Total</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Ordered</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredOrders.map((order) => (
+                        <TableRow key={order.id}>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                                <User className="h-4 w-4 text-muted-foreground" />
+                              </div>
+                              <div>
+                                <p className="font-medium">{order.profiles?.name || 'Unknown'}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {order.profiles?.email || 'No email'}
+                                </p>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            {order.menus.title}
+                          </TableCell>
+                          <TableCell>
+                            {format(parseISO(order.menus.menu_date), 'MMM d, yyyy')}
+                          </TableCell>
+                          <TableCell className="capitalize">
+                            {formatMealType(order.menus.meal_type)}
+                          </TableCell>
+                          <TableCell className="text-center font-medium">
+                            {order.quantity}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            ₹{(order.menus.price || 0).toFixed(2)}
+                          </TableCell>
+                          <TableCell className="text-right font-medium text-primary">
+                            ₹{((order.menus.price || 0) * order.quantity).toFixed(2)}
+                          </TableCell>
+                          <TableCell>
+                            <StatusBadge status={order.status} />
+                          </TableCell>
+                          <TableCell className="text-muted-foreground">
+                            {format(parseISO(order.created_at), 'MMM d, h:mm a')}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center justify-end gap-1">
+                              {order.status === 'pending' && (
+                                <>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                                    onClick={() => openApprovalDialog(order)}
+                                    disabled={processingId === order.id}
+                                    title="Approve order"
+                                  >
+                                    {processingId === order.id ? (
+                                      <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                      <CheckCircle className="h-4 w-4" />
+                                    )}
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                    onClick={() => handleReject(order.id)}
+                                    disabled={processingId === order.id}
+                                    title="Reject order"
+                                  >
+                                    <XCircle className="h-4 w-4" />
+                                  </Button>
+                                </>
+                              )}
+                              {order.status === 'cancellation_requested' && (
+                                <>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                                    onClick={() => handleApproveCancellation(order.id)}
+                                    disabled={processingId === order.id}
+                                    title="Approve cancellation"
+                                  >
+                                    {processingId === order.id ? (
+                                      <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                      <Ban className="h-4 w-4" />
+                                    )}
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                    onClick={() => handleRejectCancellation(order.id)}
+                                    disabled={processingId === order.id}
+                                    title="Reject cancellation"
+                                  >
+                                    <XCircle className="h-4 w-4" />
+                                  </Button>
+                                </>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Mobile Card View */}
+                <div className="lg:hidden space-y-3">
+                  {filteredOrders.map((order) => (
+                    <div key={order.id} className="border rounded-lg p-4 space-y-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                            <User className="h-5 w-5 text-muted-foreground" />
+                          </div>
+                          <div>
+                            <p className="font-medium">{order.profiles?.name || 'Unknown'}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {order.profiles?.email || 'No email'}
+                            </p>
+                          </div>
+                        </div>
+                        <StatusBadge status={order.status} />
+                      </div>
+                      
+                      <div className="space-y-1">
+                        <p className="font-medium">{order.menus.title}</p>
+                        <p className="text-sm text-muted-foreground capitalize">
+                          {formatMealType(order.menus.meal_type)} • {format(parseISO(order.menus.menu_date), 'MMM d, yyyy')}
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-2 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">Qty:</span>
+                          <p className="font-medium">{order.quantity}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Price:</span>
+                          <p>₹{(order.menus.price || 0).toFixed(2)}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Total:</span>
+                          <p className="font-medium text-primary">₹{((order.menus.price || 0) * order.quantity).toFixed(2)}</p>
+                        </div>
+                      </div>
+
+                      <p className="text-xs text-muted-foreground">
+                        Ordered: {format(parseISO(order.created_at), 'MMM d, h:mm a')}
+                      </p>
+
+                      {order.status === 'pending' && (
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            className="flex-1 bg-green-600 hover:bg-green-700"
+                            onClick={() => openApprovalDialog(order)}
+                            disabled={processingId === order.id}
+                          >
+                            <CheckCircle className="h-4 w-4 mr-1" />
+                            Approve
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="flex-1 text-red-600 border-red-200 hover:bg-red-50"
+                            onClick={() => handleReject(order.id)}
+                            disabled={processingId === order.id}
+                          >
+                            <XCircle className="h-4 w-4 mr-1" />
+                            Reject
+                          </Button>
+                        </div>
+                      )}
+
+                      {order.status === 'cancellation_requested' && (
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            className="flex-1 bg-green-600 hover:bg-green-700"
+                            onClick={() => handleApproveCancellation(order.id)}
+                            disabled={processingId === order.id}
+                          >
+                            <Ban className="h-4 w-4 mr-1" />
+                            Approve Cancel
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="flex-1 text-red-600 border-red-200 hover:bg-red-50"
+                            onClick={() => handleRejectCancellation(order.id)}
+                            disabled={processingId === order.id}
+                          >
+                            <XCircle className="h-4 w-4 mr-1" />
+                            Reject
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </>
             ) : (
               <div className="py-12 text-center">
                 <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">

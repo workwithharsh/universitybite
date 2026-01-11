@@ -184,18 +184,24 @@ export function useUpdateOrderStatus() {
 export function useRequestCancellation() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { user } = useAuth();
 
   return useMutation({
     mutationFn: async (orderId: string) => {
+      if (!user) throw new Error('Not authenticated');
+
       const { data, error } = await supabase
         .from('orders')
         .update({ status: 'cancellation_requested' as OrderStatus })
         .eq('id', orderId)
-        .select()
-        .single();
+        .eq('user_id', user.id)
+        .select();
 
       if (error) throw error;
-      return data;
+      if (!data || data.length === 0) {
+        throw new Error('Order not found or you do not have permission to cancel it');
+      }
+      return data[0];
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-orders'] });
@@ -253,17 +259,18 @@ export function useRejectCancellation() {
 
   return useMutation({
     mutationFn: async (orderId: string) => {
-      // Revert status back to the previous state (e.g., pending or approved)
-      // For simplicity, we'll set it back to pending
+      // Revert status back to pending
       const { data, error } = await supabase
         .from('orders')
         .update({ status: 'pending' as OrderStatus })
         .eq('id', orderId)
-        .select()
-        .single();
+        .select();
 
       if (error) throw error;
-      return data;
+      if (!data || data.length === 0) {
+        throw new Error('Order not found');
+      }
+      return data[0];
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-orders'] });
