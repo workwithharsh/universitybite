@@ -15,7 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { useMyBills } from '@/hooks/useBills';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
-import { Receipt, DollarSign } from 'lucide-react';
+import { Receipt, IndianRupee } from 'lucide-react';
 
 export default function StudentBills() {
   const queryClient = useQueryClient();
@@ -60,12 +60,15 @@ export default function StudentBills() {
         <Card>
           <CardHeader className="pb-2">
             <div className="flex items-center gap-2">
-              <DollarSign className="h-5 w-5 text-primary" />
+              <IndianRupee className="h-5 w-5 text-primary" />
               <CardTitle className="text-lg">Total Amount</CardTitle>
             </div>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-primary">${totalAmount.toFixed(2)}</p>
+            <p className="text-3xl font-bold text-primary flex items-center">
+              <IndianRupee className="h-6 w-6" />
+              {totalAmount.toFixed(2)}
+            </p>
             <p className="text-sm text-muted-foreground">
               {bills?.length || 0} bill(s) total
             </p>
@@ -121,10 +124,10 @@ export default function StudentBills() {
                           {bill.quantity}
                         </TableCell>
                         <TableCell className="text-right">
-                          ${Number(bill.unit_price).toFixed(2)}
+                          ₹{Number(bill.unit_price).toFixed(2)}
                         </TableCell>
                         <TableCell className="text-right font-medium text-primary">
-                          ${Number(bill.total_amount).toFixed(2)}
+                          ₹{Number(bill.total_amount).toFixed(2)}
                         </TableCell>
                       </TableRow>
                     ))}

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, isPast } from 'date-fns';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { StatusBadge } from '@/components/StatusBadge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,20 +23,26 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { useMyOrders, useCancelOrder } from '@/hooks/useOrders';
-import { History, Trash2, ShoppingBag } from 'lucide-react';
+import { useMyOrders, useRequestCancellation } from '@/hooks/useOrders';
+import { History, XCircle, ShoppingBag } from 'lucide-react';
 import type { OrderWithMenu } from '@/types/database';
 
 export default function StudentOrders() {
   const { data: orders, isLoading } = useMyOrders();
-  const cancelOrder = useCancelOrder();
+  const requestCancellation = useRequestCancellation();
   const [orderToCancel, setOrderToCancel] = useState<OrderWithMenu | null>(null);
 
-  const handleCancelOrder = async () => {
+  const handleRequestCancellation = async () => {
     if (orderToCancel) {
-      await cancelOrder.mutateAsync(orderToCancel.id);
+      await requestCancellation.mutateAsync(orderToCancel.id);
       setOrderToCancel(null);
     }
+  };
+
+  // Check if cancellation can be requested (before deadline)
+  const canRequestCancellation = (order: OrderWithMenu) => {
+    const deadlinePassed = isPast(parseISO(order.menus.order_deadline));
+    return (order.status === 'pending' || order.status === 'approved') && !deadlinePassed;
   };
 
   return (
@@ -117,14 +123,15 @@ export default function StudentOrders() {
                           {format(parseISO(order.created_at), 'MMM d, h:mm a')}
                         </TableCell>
                         <TableCell>
-                          {order.status === 'pending' && (
+                          {canRequestCancellation(order) && (
                             <Button
                               variant="ghost"
                               size="icon"
                               className="text-destructive hover:text-destructive"
                               onClick={() => setOrderToCancel(order)}
+                              title="Request cancellation"
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <XCircle className="h-4 w-4" />
                             </Button>
                           )}
                         </TableCell>
@@ -152,19 +159,19 @@ export default function StudentOrders() {
       <AlertDialog open={!!orderToCancel} onOpenChange={() => setOrderToCancel(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Cancel Order?</AlertDialogTitle>
+            <AlertDialogTitle>Request Cancellation?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to cancel your order for{' '}
-              <strong>{orderToCancel?.menus.title}</strong>? This action cannot be undone.
+              Are you sure you want to request cancellation for{' '}
+              <strong>{orderToCancel?.menus.title}</strong>? This will be sent to the admin for approval.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Keep Order</AlertDialogCancel>
             <AlertDialogAction
-              onClick={handleCancelOrder}
+              onClick={handleRequestCancellation}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Cancel Order
+              Request Cancellation
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

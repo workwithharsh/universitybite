@@ -2,7 +2,7 @@
 
 export type AppRole = 'admin' | 'student';
 export type MealType = 'breakfast' | 'lunch' | 'evening_snack' | 'dinner';
-export type OrderStatus = 'pending' | 'approved' | 'rejected';
+export type OrderStatus = 'pending' | 'approved' | 'rejected' | 'cancellation_requested';
 export type MenuStatus = 'open' | 'closed';
 
 export interface Profile {

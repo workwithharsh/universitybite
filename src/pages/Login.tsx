@@ -83,13 +83,6 @@ export default function Login() {
               />
             </div>
 
-            {/* Demo credentials hint */}
-            <div className="bg-muted p-3 rounded-md text-sm">
-              <p className="font-medium mb-2">Demo Credentials:</p>
-              <p><strong>Admin:</strong> admin@university.edu</p>
-              <p><strong>Student:</strong> student@university.edu</p>
-              <p className="text-muted-foreground mt-1">Password: demo123456</p>
-            </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
             <Button type="submit" className="w-full" disabled={isLoading}>

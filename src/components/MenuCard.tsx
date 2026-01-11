@@ -4,7 +4,7 @@ import type { Menu, Order } from '@/types/database';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Package, Minus, Plus, Loader2, DollarSign } from 'lucide-react';
+import { Clock, Package, Minus, Plus, Loader2, IndianRupee } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface MenuCardProps {
@@ -72,8 +72,9 @@ export function MenuCard({
             >
               {formatMealType(menu.meal_type)}
             </Badge>
-            <span className="text-lg font-bold text-primary">
-              ${menu.price.toFixed(2)}
+            <span className="text-lg font-bold text-primary flex items-center">
+              <IndianRupee className="h-4 w-4" />
+              {menu.price.toFixed(2)}
             </span>
           </div>
         </div>

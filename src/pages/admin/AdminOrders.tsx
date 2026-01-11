@@ -24,16 +24,18 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { useAllOrders, useUpdateOrderStatus } from '@/hooks/useOrders';
+import { useAllOrders, useUpdateOrderStatus, useApproveCancellation, useRejectCancellation } from '@/hooks/useOrders';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
-import { History, CheckCircle, XCircle, User, Loader2 } from 'lucide-react';
+import { History, CheckCircle, XCircle, User, Loader2, Ban } from 'lucide-react';
 import type { OrderStatus, OrderWithProfile } from '@/types/database';
 
 export default function AdminOrders() {
   const queryClient = useQueryClient();
   const { data: orders, isLoading } = useAllOrders();
   const updateOrderStatus = useUpdateOrderStatus();
+  const approveCancellation = useApproveCancellation();
+  const rejectCancellation = useRejectCancellation();
   const [statusFilter, setStatusFilter] = useState<OrderStatus | 'all'>('all');
   const [processingId, setProcessingId] = useState<string | null>(null);
   
@@ -97,11 +99,30 @@ export default function AdminOrders() {
     }
   };
 
+  const handleApproveCancellation = async (orderId: string) => {
+    setProcessingId(orderId);
+    try {
+      await approveCancellation.mutateAsync(orderId);
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  const handleRejectCancellation = async (orderId: string) => {
+    setProcessingId(orderId);
+    try {
+      await rejectCancellation.mutateAsync(orderId);
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
   const statusCounts = {
     all: orders?.length || 0,
     pending: orders?.filter((o) => o.status === 'pending').length || 0,
     approved: orders?.filter((o) => o.status === 'approved').length || 0,
     rejected: orders?.filter((o) => o.status === 'rejected').length || 0,
+    cancellation_requested: orders?.filter((o) => o.status === 'cancellation_requested').length || 0,
   };
 
   const formatMealType = (type: string) => type.replace('_', ' ');
@@ -119,12 +140,15 @@ export default function AdminOrders() {
 
         {/* Status Filter Tabs */}
         <Tabs value={statusFilter} onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}>
-          <TabsList>
+          <TabsList className="flex-wrap">
             <TabsTrigger value="all">
               All ({statusCounts.all})
             </TabsTrigger>
             <TabsTrigger value="pending">
               Pending ({statusCounts.pending})
+            </TabsTrigger>
+            <TabsTrigger value="cancellation_requested">
+              Cancel Requests ({statusCounts.cancellation_requested})
             </TabsTrigger>
             <TabsTrigger value="approved">
               Approved ({statusCounts.approved})
@@ -199,10 +223,10 @@ export default function AdminOrders() {
                           {order.quantity}
                         </TableCell>
                         <TableCell className="text-right">
-                          ${(order.menus.price || 0).toFixed(2)}
+                          ₹{(order.menus.price || 0).toFixed(2)}
                         </TableCell>
                         <TableCell className="text-right font-medium text-primary">
-                          ${((order.menus.price || 0) * order.quantity).toFixed(2)}
+                          ₹{((order.menus.price || 0) * order.quantity).toFixed(2)}
                         </TableCell>
                         <TableCell>
                           <StatusBadge status={order.status} />
@@ -235,6 +259,34 @@ export default function AdminOrders() {
                                   onClick={() => handleReject(order.id)}
                                   disabled={processingId === order.id}
                                   title="Reject order"
+                                >
+                                  <XCircle className="h-4 w-4" />
+                                </Button>
+                              </>
+                            )}
+                            {order.status === 'cancellation_requested' && (
+                              <>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                                  onClick={() => handleApproveCancellation(order.id)}
+                                  disabled={processingId === order.id}
+                                  title="Approve cancellation"
+                                >
+                                  {processingId === order.id ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <Ban className="h-4 w-4" />
+                                  )}
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                  onClick={() => handleRejectCancellation(order.id)}
+                                  disabled={processingId === order.id}
+                                  title="Reject cancellation"
                                 >
                                   <XCircle className="h-4 w-4" />
                                 </Button>
@@ -291,7 +343,7 @@ export default function AdminOrders() {
                 </div>
                 <div>
                   <span className="text-muted-foreground">Unit Price:</span>
-                  <p className="font-medium">${(selectedOrder.menus.price || 0).toFixed(2)}</p>
+                  <p className="font-medium">₹{(selectedOrder.menus.price || 0).toFixed(2)}</p>
                 </div>
               </div>
 
@@ -315,10 +367,10 @@ export default function AdminOrders() {
               <div className="p-3 rounded-md bg-primary/10 border border-primary/20">
                 <p className="text-sm font-medium">Bill Amount</p>
                 <p className="text-2xl font-bold text-primary">
-                  ${((selectedOrder.menus.price || 0) * approveQuantity).toFixed(2)}
+                  ₹{((selectedOrder.menus.price || 0) * approveQuantity).toFixed(2)}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {approveQuantity} × ${(selectedOrder.menus.price || 0).toFixed(2)}
+                  {approveQuantity} × ₹{(selectedOrder.menus.price || 0).toFixed(2)}
                 </p>
               </div>
             </div>

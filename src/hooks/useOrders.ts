@@ -181,7 +181,41 @@ export function useUpdateOrderStatus() {
   });
 }
 
-export function useCancelOrder() {
+export function useRequestCancellation() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (orderId: string) => {
+      const { data, error } = await supabase
+        .from('orders')
+        .update({ status: 'cancellation_requested' as OrderStatus })
+        .eq('id', orderId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['my-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['all-orders'] });
+      toast({
+        title: 'Cancellation requested',
+        description: 'Your cancellation request has been submitted for admin approval.',
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Failed to request cancellation',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+}
+
+export function useApproveCancellation() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -196,15 +230,52 @@ export function useCancelOrder() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['all-orders'] });
       queryClient.invalidateQueries({ queryKey: ['user-order'] });
       toast({
-        title: 'Order cancelled',
-        description: 'Your order has been cancelled.',
+        title: 'Cancellation approved',
+        description: 'The order has been cancelled.',
       });
     },
     onError: (error: Error) => {
       toast({
-        title: 'Failed to cancel order',
+        title: 'Failed to approve cancellation',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+}
+
+export function useRejectCancellation() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (orderId: string) => {
+      // Revert status back to the previous state (e.g., pending or approved)
+      // For simplicity, we'll set it back to pending
+      const { data, error } = await supabase
+        .from('orders')
+        .update({ status: 'pending' as OrderStatus })
+        .eq('id', orderId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['my-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['all-orders'] });
+      toast({
+        title: 'Cancellation rejected',
+        description: 'The cancellation request has been rejected.',
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Failed to reject cancellation',
         description: error.message,
         variant: 'destructive',
       });
