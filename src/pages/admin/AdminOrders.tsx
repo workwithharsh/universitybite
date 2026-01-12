@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -138,9 +139,25 @@ export default function AdminOrders() {
           </p>
         </div>
 
-        {/* Status Filter Tabs */}
-        <Tabs value={statusFilter} onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}>
-          <TabsList className="flex-wrap">
+        {/* Status Filter - Mobile Dropdown */}
+        <div className="sm:hidden">
+          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent className="bg-popover z-50">
+              <SelectItem value="all">All ({statusCounts.all})</SelectItem>
+              <SelectItem value="pending">Pending ({statusCounts.pending})</SelectItem>
+              <SelectItem value="cancellation_requested">Cancel Requests ({statusCounts.cancellation_requested})</SelectItem>
+              <SelectItem value="approved">Approved ({statusCounts.approved})</SelectItem>
+              <SelectItem value="rejected">Rejected ({statusCounts.rejected})</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Status Filter Tabs - Desktop */}
+        <Tabs value={statusFilter} onValueChange={(v) => setStatusFilter(v as typeof statusFilter)} className="hidden sm:block">
+          <TabsList>
             <TabsTrigger value="all">
               All ({statusCounts.all})
             </TabsTrigger>
