@@ -1,6 +1,15 @@
+import { Link } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 import { useOrderStatistics } from '@/hooks/useStatistics';
 import {
   BarChart,
@@ -15,7 +24,7 @@ import {
   Cell,
   Legend,
 } from 'recharts';
-import { BarChart3, PieChartIcon, TrendingUp, Clock } from 'lucide-react';
+import { BarChart3, PieChartIcon, TrendingUp, Clock, Home } from 'lucide-react';
 
 const MEAL_COLORS = {
   breakfast: '#f59e0b',
@@ -29,6 +38,23 @@ export default function AdminStatistics() {
   return (
     <AppLayout>
       <div className="space-y-6">
+        {/* Breadcrumb */}
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/admin">
+                  <Home className="h-4 w-4" />
+                </Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Statistics</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+
         {/* Header */}
         <div>
           <h1 className="text-2xl font-bold">Statistics</h1>
