@@ -30,8 +30,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 import { useMenus, useDeleteMenu, useUpdateMenu } from '@/hooks/useMenus';
-import { Plus, Pencil, Trash2, ClipboardList, Play, Pause, MoreVertical, Calendar, Clock, IndianRupee } from 'lucide-react';
+import { Plus, Pencil, Trash2, ClipboardList, Play, Pause, MoreVertical, Calendar, Clock, IndianRupee, Home } from 'lucide-react';
 import type { Menu } from '@/types/database';
 
 export default function AdminMenus() {
@@ -139,6 +147,23 @@ export default function AdminMenus() {
   return (
     <AppLayout>
       <div className="space-y-6">
+        {/* Breadcrumb */}
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/admin">
+                  <Home className="h-4 w-4" />
+                </Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Menus</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>

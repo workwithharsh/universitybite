@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { format, parseISO, isPast } from 'date-fns';
+import { Link } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { StatusBadge } from '@/components/StatusBadge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,8 +24,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 import { useMyOrders, useRequestCancellation } from '@/hooks/useOrders';
-import { History, XCircle, ShoppingBag } from 'lucide-react';
+import { History, XCircle, ShoppingBag, Home } from 'lucide-react';
 import type { OrderWithMenu } from '@/types/database';
 
 export default function StudentOrders() {
@@ -48,6 +57,23 @@ export default function StudentOrders() {
   return (
     <AppLayout>
       <div className="space-y-6">
+        {/* Breadcrumb */}
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/student">
+                  <Home className="h-4 w-4" />
+                </Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>My Orders</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+
         {/* Header */}
         <div>
           <h1 className="text-2xl font-bold">My Orders</h1>

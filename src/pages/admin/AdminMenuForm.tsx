@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,11 +17,19 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 import { useMenu, useCreateMenu, useUpdateMenu } from '@/hooks/useMenus';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { CalendarIcon, Loader2, Upload, Link as LinkIcon, ArrowLeft } from 'lucide-react';
+import { CalendarIcon, Loader2, Upload, Link as LinkIcon, Home } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { MealType, MenuStatus } from '@/types/database';
 
@@ -176,19 +184,37 @@ export default function AdminMenuForm() {
   return (
     <AppLayout>
       <div className="max-w-2xl mx-auto space-y-6">
+        {/* Breadcrumb */}
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/admin">
+                  <Home className="h-4 w-4" />
+                </Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/admin/menus">Menus</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{isEditing ? 'Edit Menu' : 'New Menu'}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+
         {/* Header */}
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/admin/menus')}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold">
-              {isEditing ? 'Edit Menu' : 'Create Menu'}
-            </h1>
-            <p className="text-muted-foreground">
-              {isEditing ? 'Update the menu details' : 'Add a new food menu item'}
-            </p>
-          </div>
+        <div>
+          <h1 className="text-2xl font-bold">
+            {isEditing ? 'Edit Menu' : 'Create Menu'}
+          </h1>
+          <p className="text-muted-foreground">
+            {isEditing ? 'Update the menu details' : 'Add a new food menu item'}
+          </p>
         </div>
 
         {/* Form */}
