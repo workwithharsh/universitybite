@@ -3,7 +3,8 @@ import { format } from 'date-fns';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { MenuCard } from '@/components/MenuCard';
 import { Calendar } from '@/components/ui/calendar';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
@@ -88,12 +89,28 @@ export default function StudentDashboard() {
             </PopoverContent>
           </Popover>
 
+          {/* Mobile: Dropdown for meal type */}
+          <div className="sm:hidden w-full">
+            <Select value={selectedMeal} onValueChange={(v) => setSelectedMeal(v as MealType)}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select meal type" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                <SelectItem value="breakfast">Breakfast</SelectItem>
+                <SelectItem value="lunch">Lunch</SelectItem>
+                <SelectItem value="evening_snack">Evening Snack</SelectItem>
+                <SelectItem value="dinner">Dinner</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Desktop: Tabs for meal type */}
           <Tabs 
             value={selectedMeal} 
             onValueChange={(v) => setSelectedMeal(v as MealType)}
-            className="w-full sm:w-auto"
+            className="hidden sm:block w-auto"
           >
-            <TabsList className="grid grid-cols-4 w-full sm:w-auto">
+            <TabsList className="grid grid-cols-4 w-auto">
               <TabsTrigger value="breakfast">Breakfast</TabsTrigger>
               <TabsTrigger value="lunch">Lunch</TabsTrigger>
               <TabsTrigger value="evening_snack">Snack</TabsTrigger>
