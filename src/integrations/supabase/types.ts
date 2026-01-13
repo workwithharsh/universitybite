@@ -119,28 +119,37 @@ export type Database = {
       orders: {
         Row: {
           created_at: string
+          fulfilled_at: string | null
           id: string
+          is_fulfilled: boolean
           menu_id: string
           quantity: number
           status: Database["public"]["Enums"]["order_status"]
+          token: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
+          fulfilled_at?: string | null
           id?: string
+          is_fulfilled?: boolean
           menu_id: string
           quantity: number
           status?: Database["public"]["Enums"]["order_status"]
+          token?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
+          fulfilled_at?: string | null
           id?: string
+          is_fulfilled?: boolean
           menu_id?: string
           quantity?: number
           status?: Database["public"]["Enums"]["order_status"]
+          token?: string | null
           updated_at?: string
           user_id?: string
         }

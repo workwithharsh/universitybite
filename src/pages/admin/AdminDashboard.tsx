@@ -14,7 +14,8 @@ import {
   CheckCircle,
   XCircle,
   Plus,
-  TrendingUp
+  TrendingUp,
+  Ticket
 } from 'lucide-react';
 
 export default function AdminDashboard() {
@@ -114,7 +115,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Link to="/admin/menus" className="block">
             <Card className="h-full hover:bg-muted/50 transition-colors cursor-pointer">
               <CardHeader>
@@ -138,6 +139,20 @@ export default function AdminDashboard() {
                 <CardTitle>View Orders</CardTitle>
                 <CardDescription>
                   Review student orders. Approve or reject pending orders.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
+
+          <Link to="/admin/verify-token" className="block">
+            <Card className="h-full hover:bg-muted/50 transition-colors cursor-pointer border-2 border-primary/20">
+              <CardHeader>
+                <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mb-2">
+                  <Ticket className="h-6 w-6 text-green-600" />
+                </div>
+                <CardTitle>Verify Token</CardTitle>
+                <CardDescription>
+                  Verify student order tokens and mark orders as collected.
                 </CardDescription>
               </CardHeader>
             </Card>
