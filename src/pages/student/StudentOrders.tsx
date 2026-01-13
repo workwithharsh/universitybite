@@ -3,9 +3,11 @@ import { format, parseISO, isPast } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { StatusBadge } from '@/components/StatusBadge';
+import { TokenDisplay } from '@/components/TokenDisplay';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 import {
   Table,
   TableBody,
@@ -33,7 +35,7 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { useMyOrders, useRequestCancellation } from '@/hooks/useOrders';
-import { History, XCircle, ShoppingBag, Home } from 'lucide-react';
+import { History, XCircle, ShoppingBag, Home, Ticket, CheckCircle } from 'lucide-react';
 import type { OrderWithMenu } from '@/types/database';
 
 export default function StudentOrders() {
@@ -53,6 +55,11 @@ export default function StudentOrders() {
     const deadlinePassed = isPast(parseISO(order.menus.order_deadline));
     return (order.status === 'pending' || order.status === 'approved') && !deadlinePassed;
   };
+
+  // Separate approved orders with tokens for special display
+  const approvedOrdersWithTokens = orders?.filter(
+    (o) => o.status === 'approved' && o.token && !o.is_fulfilled
+  ) || [];
 
   return (
     <AppLayout>
@@ -82,6 +89,27 @@ export default function StudentOrders() {
           </p>
         </div>
 
+        {/* Active Tokens Section */}
+        {approvedOrdersWithTokens.length > 0 && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Ticket className="h-5 w-5 text-primary" />
+              <h2 className="text-lg font-semibold">Your Active Tokens</h2>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              {approvedOrdersWithTokens.map((order) => (
+                <TokenDisplay
+                  key={order.id}
+                  token={order.token!}
+                  menuTitle={order.menus.title}
+                  quantity={order.quantity}
+                  isFulfilled={order.is_fulfilled || false}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Orders Table */}
         <Card>
           <CardHeader>
@@ -110,7 +138,8 @@ export default function StudentOrders() {
                         <TableHead>Menu Item</TableHead>
                         <TableHead>Date</TableHead>
                         <TableHead>Meal</TableHead>
-                        <TableHead className="text-center">Qty</TableHead>
+                        <TableHead>Qty</TableHead>
+                        <TableHead>Token</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Ordered</TableHead>
                         <TableHead></TableHead>
@@ -143,6 +172,20 @@ export default function StudentOrders() {
                           </TableCell>
                           <TableCell className="text-center">
                             {order.quantity}
+                          </TableCell>
+                          <TableCell>
+                            {order.token ? (
+                              <div className="flex items-center gap-1">
+                                <Badge variant={order.is_fulfilled ? "secondary" : "default"} className="font-mono">
+                                  {order.token}
+                                </Badge>
+                                {order.is_fulfilled && (
+                                  <CheckCircle className="h-3 w-3 text-green-600" />
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-muted-foreground">—</span>
+                            )}
                           </TableCell>
                           <TableCell>
                             <StatusBadge status={order.status} />
@@ -195,6 +238,19 @@ export default function StudentOrders() {
                         </div>
                         <StatusBadge status={order.status} />
                       </div>
+                      
+                      {order.token && (
+                        <div className="flex items-center gap-2">
+                          <Ticket className="h-4 w-4 text-primary" />
+                          <Badge variant={order.is_fulfilled ? "secondary" : "default"} className="font-mono">
+                            {order.token}
+                          </Badge>
+                          {order.is_fulfilled && (
+                            <span className="text-xs text-green-600">Collected</span>
+                          )}
+                        </div>
+                      )}
+                      
                       <div className="grid grid-cols-2 gap-2 text-sm">
                         <div>
                           <span className="text-muted-foreground">Date:</span>
