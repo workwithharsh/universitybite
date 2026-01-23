@@ -42,6 +42,9 @@ export interface Order {
   menu_id: string;
   quantity: number;
   status: OrderStatus;
+  token: string | null;
+  is_fulfilled: boolean;
+  fulfilled_at: string | null;
   created_at: string;
   updated_at: string;
 }

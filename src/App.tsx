@@ -15,6 +15,7 @@ import AdminMenus from "./pages/admin/AdminMenus";
 import AdminMenuForm from "./pages/admin/AdminMenuForm";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminStatistics from "./pages/admin/AdminStatistics";
+import AdminTokenVerify from "./pages/admin/AdminTokenVerify";
 import NotFound from "./pages/NotFound";
 import { Loader2 } from "lucide-react";
 
@@ -96,6 +97,11 @@ const App = () => (
             <Route path="/admin/statistics" element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <AdminStatistics />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/verify-token" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminTokenVerify />
               </ProtectedRoute>
             } />
             
