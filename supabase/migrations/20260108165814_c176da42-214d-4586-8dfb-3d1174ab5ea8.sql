@@ -275,7 +275,7 @@ VALUES ('menu-images', 'menu-images', true);
 
 -- Storage policies for menu images
 CREATE POLICY "Anyone can view menu images"
-  ON storage.objects FOR SELECT
+  ON storage.objects FOR SELECT   
   USING (bucket_id = 'menu-images');
 
 CREATE POLICY "Admins can upload menu images"
@@ -284,7 +284,7 @@ CREATE POLICY "Admins can upload menu images"
   WITH CHECK (
     bucket_id = 'menu-images' 
     AND public.has_role(auth.uid(), 'admin')
-  );
+  );        
 
 CREATE POLICY "Admins can update menu images"
   ON storage.objects FOR UPDATE
