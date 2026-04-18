@@ -85,11 +85,18 @@ export default function AdminMenuForm() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
+    // Allowlist of permitted image MIME types and matching extensions
+    const allowedTypes: Record<string, string> = {
+      'image/jpeg': 'jpg',
+      'image/jpg': 'jpg',
+      'image/png': 'png',
+      'image/webp': 'webp',
+    };
+
+    if (!allowedTypes[file.type]) {
       toast({
         title: 'Invalid file type',
-        description: 'Please upload an image file.',
+        description: 'Only JPG, PNG, or WebP images are allowed.',
         variant: 'destructive',
       });
       return;
@@ -108,12 +115,17 @@ export default function AdminMenuForm() {
     setIsUploading(true);
 
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}.${fileExt}`;
+      // Use a cryptographically random filename + sanitized extension
+      // tied to the verified MIME type to prevent collisions and spoofing.
+      const safeExt = allowedTypes[file.type];
+      const fileName = `${crypto.randomUUID()}.${safeExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from('menu-images')
-        .upload(fileName, file);
+        .upload(fileName, file, {
+          contentType: file.type,
+          upsert: false,
+        });
 
       if (uploadError) throw uploadError;
 
